@@ -1,4 +1,5 @@
 import express from "express";
+import subCategoryRoute from "./subCategoryRoute.js";
 
 import {
   getCategories,
@@ -16,6 +17,8 @@ import {
 } from "../utils/validators/categoryValidators.js";
 
 const router = express.Router();
+
+router.use("/:categoryId/subcategories", subCategoryRoute);
 
 router
   .route("/")

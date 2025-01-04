@@ -1,13 +1,11 @@
-const sendErrorDev = (err, req, res) => {
-  // Api
-  return res.status(err.statusCode).json({
+const sendErrorDev = (err, req, res) =>
+  res.status(err.statusCode).json({
     status: err.status,
     error: err,
     message: err.message,
     stack: err.stack,
     errorType: "error",
   });
-};
 
 const sendErrorProd = (err, req, res) => {
   // API
