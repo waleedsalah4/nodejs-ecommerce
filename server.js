@@ -5,6 +5,7 @@ import dbConnection from "./config/database.js";
 import categoryRoute from "./routes/categoryRoute.js";
 import subCategoryRoute from "./routes/subCategoryRoute.js";
 import brandsRoute from "./routes/brandRoute.js";
+import productsRoute from "./routes/productRoute.js";
 import ApiError from "./utils/apiError.js";
 import { globalError } from "./middlewares/errorMiddleware.js";
 
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV === "development") {
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subCategoryRoute);
 app.use("/api/v1/brands", brandsRoute);
+app.use("/api/v1/products", productsRoute);
 app.all("*", (req, res, next) => {
   // create error and send it to error handle middleware
   // const err = new Error(
