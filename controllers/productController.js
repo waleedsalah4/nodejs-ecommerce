@@ -7,21 +7,75 @@ import ApiError from "../utils/apiError.js";
 // @route       GWT /api/v1/products
 // @access      Public
 export const getProducts = asyncHandler(async (req, res) => {
+  // 1) Filtering
+  const queryStringObj = { ...req.query };
+  const excludedFields = ["page", "sort", "limit", "fields"];
+  excludedFields.forEach((el) => delete queryStringObj[el]);
+
+  //if we want to filter with values of greater then or equal we have to do this
+  // {price: {$gte: 50}, ratingsAverage: {$gte: 4}}
+  //console.log(queryStringObj); //{ ratingsAverage: { gte: '4.3' } }
+  //we don't get the "$" sign so we need to add it
+
+  // 1.1) Advanced filtering
+  let queryStr = JSON.stringify(queryStringObj);
+  queryStr = queryStr.replace(
+    /\b(gte|gt|lte|lt|ne)\b/g,
+    (match) => `$${match}`
+  );
+
+  // 1) Pagination
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
-  const totalItems = await ProductModel.find().countDocuments();
-  const products = await ProductModel.find({})
+
+  // const totalItems = await ProductModel.find().countDocuments();
+
+  //build query
+  const mongooseQuery = ProductModel.find(JSON.parse(queryStr))
     .skip(skip)
     .limit(limit)
     .populate({ path: "category", select: "name _id" });
+
+  // Execute query
+  const products = await mongooseQuery;
+
   res.status(200).json({
     results: products.length,
-    totalCount: totalItems,
+    // totalCount: totalItems,
     page: page,
     data: products,
   });
 });
+
+/*
+  without await your only building your query
+  with it your are executing it
+*/
+
+/**
+ to apply filter we have two ways
+ 1-
+  await ProductModel.find({
+    price: req.query.price,
+    ratingAverage: req.query.ratingAverage
+  })
+    .skip(skip)
+    .limit(limit)
+    .populate({ path: "category", select: "name _id" });
+    
+----
+  2-
+  chain methods
+  await ProductModel.find({})
+    .where('price').equals(req.query.price)
+    .where("ratingAverage").equals(req.query.ratingAverage)
+    .skip(skip)
+    .limit(limit)
+    .populate({ path: "category", select: "name _id" });
+
+
+ */
 
 // @desc        Get specific product by id
 // @route       GWT /api/v1/products/:id
