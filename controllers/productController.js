@@ -9,7 +9,7 @@ import ApiError from "../utils/apiError.js";
 export const getProducts = asyncHandler(async (req, res) => {
   // 1) Filtering
   const queryStringObj = { ...req.query };
-  const excludedFields = ["page", "sort", "limit", "fields"];
+  const excludedFields = ["page", "sort", "limit", "fields", "keyword"];
   excludedFields.forEach((el) => delete queryStringObj[el]);
 
   //if we want to filter with values of greater then or equal we have to do this
@@ -24,7 +24,7 @@ export const getProducts = asyncHandler(async (req, res) => {
     (match) => `$${match}`
   );
 
-  // 1) Pagination
+  // 2) Pagination
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
@@ -32,10 +32,50 @@ export const getProducts = asyncHandler(async (req, res) => {
   // const totalItems = await ProductModel.find().countDocuments();
 
   //build query
-  const mongooseQuery = ProductModel.find(JSON.parse(queryStr))
+  let mongooseQuery = ProductModel.find(JSON.parse(queryStr))
     .skip(skip)
     .limit(limit)
     .populate({ path: "category", select: "name _id" });
+
+  // 3) Sorting
+  if (req.query.sort) {
+    //price || -price
+    //mongooseQuery = mongooseQuery.sort(req.query.sort);
+
+    //in case we need to to sort with more than one value
+    // we set the value in postman like this sort=price,sold
+    // but this "price,sold" won't work we need to remove the "," as sort work like this => sort('price sold')
+    const sortBy = req.query.sort.split(",").join(" ");
+    mongooseQuery = mongooseQuery.sort(sortBy);
+  } else {
+    mongooseQuery = mongooseQuery.sort("-createdAt");
+  }
+
+  // 4) Limiting fields
+  if (req.query.fields) {
+    // title,ratingAverage,imageCover,price
+    const fields = req.query.fields.split(",").join(" ");
+    // title ratingAverage imageCover price
+    mongooseQuery = mongooseQuery.select(fields);
+  } else {
+    mongooseQuery = mongooseQuery.select("-__v"); //exclude "__v"
+    // when you but '-' before field you eliminate it
+  }
+
+  // 5) Search
+  if (req.query.keyword) {
+    console.log(req.query);
+    const keyword = req.query.keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    let query = {
+      $or: [
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+      ],
+    };
+    //$options: "i" make it the same incase i write "men" or "MEN" not case sensitive
+    mongooseQuery = mongooseQuery.find(query);
+    // search in all products title and description that may have this keyword and return these products
+  }
 
   // Execute query
   const products = await mongooseQuery;
