@@ -2,6 +2,7 @@ import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import { SubCategoryModel } from "../models/subCategoryModel.js";
 import ApiError from "../utils/apiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 export const setCategoryIdToBody = (req, res, next) => {
   //nested route
@@ -35,20 +36,21 @@ export const createSubCategory = asyncHandler(async (req, res) => {
 // @route       GWT /api/v1/subcategories
 // @access      Public
 export const getSubCategories = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
+  const documentsCounts = await SubCategoryModel.countDocuments();
+  const apiFeatures = new ApiFeatures(SubCategoryModel.find(), req.query)
+    .paginate(documentsCounts)
+    .filter()
+    .search("SubCategories")
+    .limitFields()
+    .sort();
 
-  //const totalItems = await SubCategoryModel.find().countDocuments();
-  const categories = await SubCategoryModel.find(req.filterObject)
-    .skip(skip)
-    .limit(limit);
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const subcategories = await mongooseQuery;
   // .populate({ path: "category", select: "name _id" });
   res.status(200).json({
-    results: categories.length,
-    // totalCount: totalItems,
-    page: page,
-    data: categories,
+    results: subcategories.length,
+    paginationResult,
+    data: subcategories,
   });
 });
 

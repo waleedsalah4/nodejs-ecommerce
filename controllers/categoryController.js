@@ -2,19 +2,25 @@ import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import { CategoryModel } from "../models/categoryModel.js";
 import ApiError from "../utils/apiError.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 // @desc        Get list of categories
 // @route       GWT /api/v1/categories
 // @access      Public
 export const getCategories = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const totalItems = await CategoryModel.find().countDocuments();
-  const categories = await CategoryModel.find({}).skip(skip).limit(limit);
+  const documentsCounts = await CategoryModel.countDocuments();
+  const apiFeatures = new ApiFeatures(CategoryModel.find(), req.query)
+    .paginate(documentsCounts)
+    .filter()
+    .search("Categories")
+    .limitFields()
+    .sort();
+
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const categories = await mongooseQuery;
   res.status(200).json({
     results: categories.length,
-    totalCount: totalItems,
+    paginationResult,
     page: page,
     data: categories,
   });

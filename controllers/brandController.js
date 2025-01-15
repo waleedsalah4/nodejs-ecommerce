@@ -2,20 +2,25 @@ import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
 import { BrandModel } from "../models/brandModel.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 // @desc        Get list of brands
 // @route       GWT /api/v1/brands
 // @access      Public
 export const getBrands = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const totalItems = await BrandModel.find().countDocuments();
-  const brands = await BrandModel.find({}).skip(skip).limit(limit);
+  const documentsCounts = await BrandModel.countDocuments();
+  const apiFeatures = new ApiFeatures(BrandModel.find(), req.query)
+    .paginate(documentsCounts)
+    .filter()
+    .search("Brands")
+    .limitFields()
+    .sort();
+
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const brands = await mongooseQuery;
   res.status(200).json({
     results: brands.length,
-    totalCount: totalItems,
-    page: page,
+    paginationResult,
     data: brands,
   });
 });
