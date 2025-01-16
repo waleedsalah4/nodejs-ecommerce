@@ -9,11 +9,11 @@ export const createProductValidator = [
     .isLength({ min: 3 })
     .withMessage("must be at least 3 chars")
     .notEmpty()
-    .withMessage("Product required"),
-  // .custom((val, { req }) => {
-  //   req.body.slug = slugify(val);
-  //   return true;
-  // }),
+    .withMessage("Product required")
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    }),
   check("description")
     .notEmpty()
     .withMessage("Product description is required")

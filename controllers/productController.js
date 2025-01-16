@@ -1,12 +1,15 @@
-import slugify from "slugify";
-import asyncHandler from "express-async-handler";
+// import slugify from "slugify";
+// import asyncHandler from "express-async-handler";
+// import ApiFeatures from "../utils/apiFeatures.js";
+// import ApiError from "../utils/apiError.js";
 import { ProductModel } from "../models/productModel.js";
-import ApiFeatures from "../utils/apiFeatures.js";
-import ApiError from "../utils/apiError.js";
+import handlerFactory from "./handlerFactory.js";
 
 // @desc        Get list of products
 // @route       GWT /api/v1/products
 // @access      Public
+export const getProducts = handlerFactory.getAll(ProductModel, "Products");
+/*
 export const getProducts = asyncHandler(async (req, res) => {
   const documentsCounts = await ProductModel.countDocuments();
   const apiFeatures = new ApiFeatures(ProductModel.find(), req.query)
@@ -27,7 +30,7 @@ export const getProducts = asyncHandler(async (req, res) => {
     data: products,
   });
 });
-
+*/
 /*
   without await your only building your query
   with it your are executing it
@@ -60,6 +63,8 @@ export const getProducts = asyncHandler(async (req, res) => {
 // @desc        Get specific product by id
 // @route       GWT /api/v1/products/:id
 // @access      Public
+export const getProductById = handlerFactory.getOneById(ProductModel);
+/*
 export const getProductById = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
   const product = await ProductModel.findById(id).populate({
@@ -73,20 +78,26 @@ export const getProductById = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     data: product,
   });
-});
+});*/
 
 // @desc        Create product
 // @route       POST /api/v1/products
 // @access      Private
+export const createProduct = handlerFactory.createOne(ProductModel);
+/*
 export const createProduct = asyncHandler(async (req, res) => {
   req.body.slug = slugify(req.body.title);
   const product = await ProductModel.create(req.body);
   res.status(201).json({ data: product });
-});
+});*/
 
 // @desc        Update specific product
 // @route       PUT /api/v1/products/:id
 // @access      Private
+
+export const updateProduct = handlerFactory.updateOne(ProductModel);
+
+/*
 export const updateProduct = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
   if (req.body.title) {
@@ -102,17 +113,18 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
   }
 
   res.status(201).json({ data: product });
-});
+});*/
 
 // @desc        Delete specific product
 // @route       PUT /api/v1/products/:id
 // @access      Private
-export const deleteProduct = asyncHandler(async (req, res, next) => {
-  const id = req.params.id;
-  const product = await ProductModel.findByIdAndDelete(id);
-  if (!product) {
-    return next(new ApiError(`No product found for this id: ${id}`, 404));
-  }
+export const deleteProduct = handlerFactory.deleteOne(ProductModel);
+// export const deleteProduct = asyncHandler(async (req, res, next) => {
+//   const id = req.params.id;
+//   const product = await ProductModel.findByIdAndDelete(id);
+//   if (!product) {
+//     return next(new ApiError(`No product found for this id: ${id}`, 404));
+//   }
 
-  res.status(204).send();
-});
+//   res.status(204).send();
+// });
