@@ -1,9 +1,31 @@
 // import slugify from "slugify";
-// import asyncHandler from "express-async-handler";
-// import ApiError from "../utils/apiError.js";
 // import ApiFeatures from "../utils/apiFeatures.js";
-import { BrandModel } from "../models/brandModel.js";
+import asyncHandler from "express-async-handler";
+import sharp from "sharp";
+import ApiError from "../utils/apiError.js";
 import handlerFactory from "./handlerFactory.js";
+import { uploadSingleImage } from "../middlewares/uploadImageMiddleware.js";
+import { BrandModel } from "../models/brandModel.js";
+
+// Upload single image
+export const uploadBrandImage = uploadSingleImage("image");
+// Image processing
+export const resizeImage = asyncHandler(async (req, res, next) => {
+  if (!req.file) {
+    return next(new ApiError("No file uploaded", 400));
+  }
+  const fileName = `${new Date().toISOString().replace(/:/g, "-")}-${req.file.originalname.split(".")[0]}.webp`;
+  await sharp(req.file.buffer)
+    .resize(600, 600)
+    .toFormat("webp")
+    .webp({ quality: 90 })
+    .toFile(`uploads/brands/${fileName}`);
+
+  //to save the image path in db
+  req.body.image = fileName;
+
+  next();
+});
 
 // @desc        Get list of brands
 // @route       GWT /api/v1/brands

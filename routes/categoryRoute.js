@@ -8,6 +8,8 @@ import {
   getCategoryById,
   updateCategory,
   deleteCategory,
+  uploadCategoryImage,
+  resizeImage,
 } from "../controllers/categoryController.js";
 
 import {
@@ -16,10 +18,6 @@ import {
   updateCategoryValidator,
   deleteCategoryValidator,
 } from "../utils/validators/categoryValidators.js";
-import {
-  uploadCategoryImage,
-  resizeImage,
-} from "../utils/imageUpload/multer.js";
 
 const router = express.Router();
 
