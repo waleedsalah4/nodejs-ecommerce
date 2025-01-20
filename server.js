@@ -1,4 +1,8 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 import express from "express";
+
 import morgan from "morgan";
 import { config } from "dotenv";
 import dbConnection from "./config/database.js";
@@ -16,9 +20,13 @@ dbConnection();
 
 // express app
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middlewares
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "uploads")));
+// app.use("/images", express.static(path.join(__dirname, "images")));
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
