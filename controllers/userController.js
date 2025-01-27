@@ -1,11 +1,12 @@
-// import slugify from "slugify";
-// import ApiFeatures from "../utils/apiFeatures.js";
-import asyncHandler from "express-async-handler";
+import bcrypt from "bcryptjs";
 import sharp from "sharp";
+import asyncHandler from "express-async-handler";
+
 import ApiError from "../utils/apiError.js";
 import handlerFactory from "./handlerFactory.js";
-import { uploadSingleImage } from "../middlewares/uploadImageMiddleware.js";
 import User from "../models/userModal.js";
+
+import { uploadSingleImage } from "../middlewares/uploadImageMiddleware.js";
 
 // Upload single image
 export const uploadUserImage = uploadSingleImage("profileImg");
@@ -47,7 +48,47 @@ export const createUser = handlerFactory.createOne(User);
 // @route       PUT /api/v1/users/:id
 // @access      Private
 
-export const updateUser = handlerFactory.updateOne(User);
+export const updateUser = asyncHandler(async (req, res, next) => {
+  const document = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      name: req.body.name,
+      slug: req.body.slug,
+      phone: req.body.phone,
+      email: req.body.email,
+      profileImg: req.body.profileImg,
+      role: req.body.role,
+    },
+    {
+      new: true,
+    }
+  );
+  if (!document) {
+    return next(
+      new ApiError(`No document found for this id: ${req.params.id}`, 404)
+    );
+  }
+
+  res.status(201).json({ data: document });
+});
+
+export const changeUserPassword = asyncHandler(async (req, res, next) => {
+  const document = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      password: await bcrypt.hash(req.body.password, 12),
+      passwordChangedAt: Date.now(),
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!document) {
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+  }
+  res.status(200).json({ data: document });
+});
 
 // @desc        Delete specific User
 // @route       PUT /api/v1/users/:id

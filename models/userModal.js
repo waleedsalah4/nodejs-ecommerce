@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "password required"],
       minlength: [6, "Too short password"],
     },
-    // passwordChangedAt: Date,
+    passwordChangedAt: Date,
     // passwordResetCode: String,
     // passwordResetExpires: Date,
     // passwordResetVerified: Boolean,
@@ -60,12 +60,12 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-//   // Hashing user password
-//   this.password = await bcrypt.hash(this.password, 12);
-//   next();
-// });
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  // Hashing user password
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

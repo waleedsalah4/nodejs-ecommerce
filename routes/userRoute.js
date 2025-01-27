@@ -8,15 +8,32 @@ import {
   deleteUser,
   uploadUserImage,
   resizeImage,
+  changeUserPassword,
 } from "../controllers/userController.js";
+import {
+  createUserValidator,
+  getUserValidator,
+  updateUserValidator,
+  changeUserPasswordValidator,
+  deleteUserValidator,
+} from "../utils/validators/userValidator.js";
 
 const router = express.Router();
 
-router.route("/").get(getUsers).post(uploadUserImage, resizeImage, createUser);
+router.put(
+  "/changePassword/:id",
+  changeUserPasswordValidator,
+  changeUserPassword
+);
+
+router
+  .route("/")
+  .get(getUsers)
+  .post(uploadUserImage, resizeImage, createUserValidator, createUser);
 router
   .route("/:id")
-  .get(getUserById)
-  .put(uploadUserImage, resizeImage, updateUser)
-  .delete(deleteUser);
+  .get(getUserValidator, getUserById)
+  .put(uploadUserImage, resizeImage, updateUserValidator, updateUser)
+  .delete(deleteUserValidator, deleteUser);
 
 export default router;
