@@ -18,6 +18,7 @@ import {
   updateCategoryValidator,
   deleteCategoryValidator,
 } from "../utils/validators/categoryValidators.js";
+import { protect } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -27,6 +28,7 @@ router
   .route("/")
   .get(getCategories)
   .post(
+    protect,
     uploadCategoryImage,
     resizeImage,
     createCategoryValidator,
