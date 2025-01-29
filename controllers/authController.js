@@ -94,3 +94,17 @@ export const protect = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
+// roles => ["admin", "manager"]
+export const allowedTo = (...roles) =>
+  asyncHandler(async (req, res, next) => {
+    if (!roles.includes(req.user.roles)) {
+      return next(
+        new ApiError("You are not allowed to access this route", 403)
+      );
+    }
+    // 1) access roles
+    // 2) access registered user (req.user.role)
+
+    next();
+  });

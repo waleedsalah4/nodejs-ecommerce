@@ -18,7 +18,7 @@ import {
   updateCategoryValidator,
   deleteCategoryValidator,
 } from "../utils/validators/categoryValidators.js";
-import { protect } from "../controllers/authController.js";
+import { protect, allowedTo } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -29,6 +29,7 @@ router
   .get(getCategories)
   .post(
     protect,
+    allowedTo("admin", "manager"),
     uploadCategoryImage,
     resizeImage,
     createCategoryValidator,
@@ -38,11 +39,13 @@ router
   .route("/:id")
   .get(getCategoryValidator, getCategoryById)
   .put(
+    protect,
+    allowedTo("admin", "manager"),
     uploadCategoryImage,
     resizeImage,
     updateCategoryValidator,
     updateCategory
   )
-  .delete(deleteCategoryValidator, deleteCategory);
+  .delete(protect, allowedTo("admin"), deleteCategoryValidator, deleteCategory);
 
 export default router;

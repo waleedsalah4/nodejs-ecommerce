@@ -17,6 +17,7 @@ import {
   changeUserPasswordValidator,
   deleteUserValidator,
 } from "../utils/validators/userValidator.js";
+import { protect, allowedTo } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -28,12 +29,26 @@ router.put(
 
 router
   .route("/")
-  .get(getUsers)
-  .post(uploadUserImage, resizeImage, createUserValidator, createUser);
+  .get(protect, allowedTo("admin", "manager"), getUsers)
+  .post(
+    protect,
+    allowedTo("admin"),
+    uploadUserImage,
+    resizeImage,
+    createUserValidator,
+    createUser
+  );
 router
   .route("/:id")
-  .get(getUserValidator, getUserById)
-  .put(uploadUserImage, resizeImage, updateUserValidator, updateUser)
-  .delete(deleteUserValidator, deleteUser);
+  .get(protect, allowedTo("admin"), getUserValidator, getUserById)
+  .put(
+    protect,
+    allowedTo("admin"),
+    uploadUserImage,
+    resizeImage,
+    updateUserValidator,
+    updateUser
+  )
+  .delete(protect, allowedTo("admin"), deleteUserValidator, deleteUser);
 
 export default router;
