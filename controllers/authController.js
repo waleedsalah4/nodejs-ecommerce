@@ -1,9 +1,12 @@
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import asyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
+import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
 import User from "../models/userModal.js";
+
 import { createToken } from "../utils/createToken.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 // @desc        signup
 // @route       GWT /api/v1/auth/signup
@@ -95,6 +98,7 @@ export const protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
+// @desc    Authorization (User Permissions)
 // roles => ["admin", "manager"]
 export const allowedTo = (...roles) =>
   asyncHandler(async (req, res, next) => {
@@ -108,3 +112,108 @@ export const allowedTo = (...roles) =>
 
     next();
   });
+
+// @desc        Forgot Password
+// @route       GWT /api/v1/auth/forgotPassword
+// @access      Public
+export const forgotPassword = asyncHandler(async (req, res, next) => {
+  // 1) Get user by email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(
+      new ApiError(`There is no user with that email ${req.body.email}`, 404)
+    );
+  }
+  // 2) If user exist, Generate hash reset random 6 digits and save it in db
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(resetCode)
+    .digest("hex");
+
+  // Save hashed password reset code into db
+  user.passwordResetCode = hashedResetCode;
+  // Add expiration time for password reset code (10 min)
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  user.passwordResetVerified = false;
+
+  await user.save();
+
+  // 3) Send the reset code via email
+  const message = `Hi ${user.name},\n We received a request to reset the password on your E-shop Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset code (valid for 10 min)",
+      message,
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordResetVerified = undefined;
+
+    await user.save();
+    return next(new ApiError("There is an error in sending email", 500));
+  }
+
+  res
+    .status(200)
+    .json({ status: "Success", message: "Reset code sent to email" });
+});
+
+// @desc    Verify password reset code
+// @route   POST /api/v1/auth/verifyResetCode
+// @access  Public
+
+export const VerifyResetCode = asyncHandler(async (req, res, next) => {
+  // 1) Get user based on reset code
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(req.body.resetCode)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetCode: hashedResetCode,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if (!user) {
+    return next(new ApiError("Reset code invalid or expired"));
+  }
+
+  // 2) Reset code valid
+  user.passwordResetVerified = true;
+  await user.save();
+
+  res.status(200).json({
+    status: "Success",
+  });
+});
+
+// @desc    Reset password
+// @route   POST /api/v1/auth/resetPassword
+// @access  Public
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  // 1) Get user based on email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(
+      new ApiError(`There is no user with email ${req.body.email}`, 404)
+    );
+  }
+
+  // 2) Check if reset code verified
+  if (!user.passwordResetVerified) {
+    return next(new ApiError("Reset code not verified", 400));
+  }
+
+  user.password = req.body.newPassword;
+  user.passwordResetCode = undefined;
+  user.passwordResetExpires = undefined;
+  user.passwordResetVerified = undefined;
+
+  await user.save();
+
+  // 3) if everything is ok, generate token
+  const token = createToken(user._id);
+  res.status(200).json({ token });
+});

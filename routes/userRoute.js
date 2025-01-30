@@ -9,6 +9,10 @@ import {
   uploadUserImage,
   resizeImage,
   changeUserPassword,
+  getLoggedUserData,
+  updateLoggedUserPassword,
+  updateLoggedUserData,
+  deleteLoggedUserData,
 } from "../controllers/userController.js";
 import {
   createUserValidator,
@@ -16,11 +20,20 @@ import {
   updateUserValidator,
   changeUserPasswordValidator,
   deleteUserValidator,
+  updateLoggedUserValidator,
 } from "../utils/validators/userValidator.js";
 import { protect, allowedTo } from "../controllers/authController.js";
 
 const router = express.Router();
 
+router.use(protect);
+
+router.get("/getMe", getLoggedUserData, getUserById);
+router.put("/changeMyPassword", updateLoggedUserPassword);
+router.put("/updateMe", updateLoggedUserValidator, updateLoggedUserData);
+router.delete("/deleteMe", deleteLoggedUserData);
+
+router.use(allowedTo("admin", "manager"));
 router.put(
   "/changePassword/:id",
   changeUserPasswordValidator,
@@ -29,26 +42,12 @@ router.put(
 
 router
   .route("/")
-  .get(protect, allowedTo("admin", "manager"), getUsers)
-  .post(
-    protect,
-    allowedTo("admin"),
-    uploadUserImage,
-    resizeImage,
-    createUserValidator,
-    createUser
-  );
+  .get(getUsers)
+  .post(uploadUserImage, resizeImage, createUserValidator, createUser);
 router
   .route("/:id")
-  .get(protect, allowedTo("admin"), getUserValidator, getUserById)
-  .put(
-    protect,
-    allowedTo("admin"),
-    uploadUserImage,
-    resizeImage,
-    updateUserValidator,
-    updateUser
-  )
-  .delete(protect, allowedTo("admin"), deleteUserValidator, deleteUser);
+  .get(getUserValidator, getUserById)
+  .put(uploadUserImage, resizeImage, updateUserValidator, updateUser)
+  .delete(deleteUserValidator, deleteUser);
 
 export default router;
