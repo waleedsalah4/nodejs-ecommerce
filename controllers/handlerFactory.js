@@ -39,14 +39,16 @@ const createOne = (Model) =>
       data: doc,
     });
   });
-const getOneById = (Modal) =>
+const getOneById = (Modal, populationOpts) =>
   asyncHandler(async (req, res, next) => {
     const id = req.params.id;
-    const document = await Modal.findById(id);
-    // .populate({
-    //   path: "category",
-    //   select: "name _id",
-    // });
+    // 1) build query
+    let query = Modal.findById(id);
+    if (populationOpts) {
+      query = query.populate(populationOpts);
+    }
+    //2) execute query
+    const document = await query;
     if (!document) {
       return next(new ApiError(`No document found for this id: ${id}`, 404));
     }

@@ -1,5 +1,5 @@
 import express from "express";
-// import subCategoryRoute from "./subCategoryRoute.js";
+import reviewRoute from "./reviewRoute.js";
 
 import {
   getProducts,
@@ -20,6 +20,11 @@ import {
 import { protect, allowedTo } from "../controllers/authController.js";
 
 const router = express.Router();
+
+// POST /products/164d6fdf8v4d8f/reviews
+// GET /products/164d6fdf8v4d8f/reviews
+// GET /products/164d6fdf8v4d8f/reviews/45848fdf8878/ => /products/:productId/reviews/:reviewId/ get specific review from specific product
+router.use("/:productId/reviews", reviewRoute);
 
 router
   .route("/")

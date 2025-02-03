@@ -13,6 +13,7 @@ import brandsRoute from "./routes/brandRoute.js";
 import productsRoute from "./routes/productRoute.js";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
+import reviewRoute from "./routes/reviewRoute.js";
 import ApiError from "./utils/apiError.js";
 
 import { globalError } from "./middlewares/errorMiddleware.js";
@@ -44,6 +45,7 @@ app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subCategoryRoute);
 app.use("/api/v1/brands", brandsRoute);
 app.use("/api/v1/products", productsRoute);
+app.use("/api/v1/reviews", reviewRoute);
 app.all("*", (req, res, next) => {
   // create error and send it to error handle middleware
   // const err = new Error(

@@ -112,7 +112,10 @@ export const getProducts = asyncHandler(async (req, res) => {
 // @desc        Get specific product by id
 // @route       GWT /api/v1/products/:id
 // @access      Public
-export const getProductById = handlerFactory.getOneById(ProductModel);
+export const getProductById = handlerFactory.getOneById(
+  ProductModel,
+  "reviews"
+);
 /*
 export const getProductById = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
