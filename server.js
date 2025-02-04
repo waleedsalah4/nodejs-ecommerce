@@ -14,6 +14,8 @@ import productsRoute from "./routes/productRoute.js";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
 import reviewRoute from "./routes/reviewRoute.js";
+import wishlistRoute from "./routes/wishlistRoute.js";
+import addressRoute from "./routes/addressRoute.js";
 import ApiError from "./utils/apiError.js";
 
 import { globalError } from "./middlewares/errorMiddleware.js";
@@ -46,6 +48,8 @@ app.use("/api/v1/subcategories", subCategoryRoute);
 app.use("/api/v1/brands", brandsRoute);
 app.use("/api/v1/products", productsRoute);
 app.use("/api/v1/reviews", reviewRoute);
+app.use("/api/v1/wishlist", wishlistRoute);
+app.use("/api/v1/addresses", addressRoute);
 app.all("*", (req, res, next) => {
   // create error and send it to error handle middleware
   // const err = new Error(
