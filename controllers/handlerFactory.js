@@ -4,12 +4,13 @@ import ApiFeatures from "../utils/apiFeatures.js";
 
 const deleteOne = (Model) =>
   asyncHandler(async (req, res, next) => {
-    const doc = await Model.findByIdAndDelete(req.params.id);
+    const doc = await Model.findOneAndDelete({ _id: req.params.id });
 
     if (!doc) {
       return next(new ApiError("No document Found With That ID", 404));
     }
 
+    // await doc.deleteOne();
     res.status(204).json({
       status: "success",
       data: null,
@@ -29,6 +30,8 @@ const updateOne = (Model) =>
       );
     }
 
+    // Trigger "save" event when update document
+    document.save();
     res.status(201).json({ data: document });
   });
 

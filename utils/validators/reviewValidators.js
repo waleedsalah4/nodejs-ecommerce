@@ -59,7 +59,7 @@ export const deleteReviewValidator = [
     .custom((val, { req }) => {
       // Check review ownership before update
       if (req.user.role === "user") {
-        return Review.findById(val).then((review) => {
+        return ReviewModel.findById(val).then((review) => {
           if (!review) {
             return Promise.reject(
               new Error(`There is no review with id ${val}`)

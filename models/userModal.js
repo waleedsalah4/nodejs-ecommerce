@@ -40,12 +40,12 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
     // child reference (one to many)
-    // wishlist: [
-    //   {
-    //     type: mongoose.Schema.ObjectId,
-    //     ref: "Product",
-    //   },
-    // ],
+    wishlist: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+    ],
     // addresses: [
     //   {
     //     id: { type: mongoose.Schema.Types.ObjectId },
