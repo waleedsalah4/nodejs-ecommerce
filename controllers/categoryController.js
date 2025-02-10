@@ -30,7 +30,7 @@ export const resizeImage = asyncHandler(async (req, res, next) => {
 });
 
 // @desc        Get list of categories
-// @route       GWT /api/v1/categories
+// @route       GET /api/v1/categories
 // @access      Public
 export const getCategories = handlerFactory.getAll(CategoryModel, "Categories");
 /*
@@ -53,7 +53,7 @@ export const getCategories = asyncHandler(async (req, res) => {
 });*/
 
 // @desc        Get specific category by id
-// @route       GWT /api/v1/categories/:id
+// @route       GET /api/v1/categories/:id
 // @access      Public
 export const getCategoryById = handlerFactory.getOneById(CategoryModel);
 /*

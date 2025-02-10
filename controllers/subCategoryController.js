@@ -36,7 +36,7 @@ export const createSubCategory = asyncHandler(async (req, res) => {
 });*/
 
 // @desc        Get list of subcategories
-// @route       GWT /api/v1/subcategories
+// @route       GET /api/v1/subcategories
 // @access      Public
 export const getSubCategories = handlerFactory.getAll(
   SubCategoryModel,
@@ -63,7 +63,7 @@ export const getSubCategories = asyncHandler(async (req, res) => {
 });*/
 
 // @desc        Get specific subcategory by id
-// @route       GWT /api/v1/subcategories/:id
+// @route       GET /api/v1/subcategories/:id
 // @access      Public
 export const getSubCategoryById = handlerFactory.getOneById(SubCategoryModel);
 /*

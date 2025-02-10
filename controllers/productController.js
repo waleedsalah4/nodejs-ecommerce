@@ -55,7 +55,7 @@ export const resizeProductImages = asyncHandler(async (req, res, next) => {
 });
 
 // @desc        Get list of products
-// @route       GWT /api/v1/products
+// @route       GET /api/v1/products
 // @access      Public
 export const getProducts = handlerFactory.getAll(ProductModel, "Products");
 /*
@@ -110,7 +110,7 @@ export const getProducts = asyncHandler(async (req, res) => {
  */
 
 // @desc        Get specific product by id
-// @route       GWT /api/v1/products/:id
+// @route       GET /api/v1/products/:id
 // @access      Public
 export const getProductById = handlerFactory.getOneById(
   ProductModel,

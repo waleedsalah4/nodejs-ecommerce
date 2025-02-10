@@ -28,7 +28,7 @@ export const resizeImage = asyncHandler(async (req, res, next) => {
 });
 
 // @desc        Get list of brands
-// @route       GWT /api/v1/brands
+// @route       GET /api/v1/brands
 // @access      Public
 export const getBrands = handlerFactory.getAll(BrandModel, "Brands");
 /*
@@ -51,7 +51,7 @@ export const getBrands = asyncHandler(async (req, res) => {
 });*/
 
 // @desc        Get specific brand by id
-// @route       GWT /api/v1/brands/:id
+// @route       GET /api/v1/brands/:id
 // @access      Public
 export const getBrandById = handlerFactory.getOneById(BrandModel);
 /*

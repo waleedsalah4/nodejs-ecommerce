@@ -18,12 +18,12 @@ export const createFilterObject = (req, res, next) => {
 };
 
 // @desc        Get list of reviews
-// @route       GWT /api/v1/reviews
+// @route       GET /api/v1/reviews
 // @access      Public
 export const getReviews = handlerFactory.getAll(ReviewModel, "Reviews");
 
 // @desc        Get specific brand by id
-// @route       GWT /api/v1/reviews/:id
+// @route       GET /api/v1/reviews/:id
 // @access      Public
 export const getReviewById = handlerFactory.getOneById(ReviewModel);
 

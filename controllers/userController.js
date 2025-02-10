@@ -30,12 +30,12 @@ export const resizeImage = asyncHandler(async (req, res, next) => {
 });
 
 // @desc        Get list of users
-// @route       GWT /api/v1/users
+// @route       GET /api/v1/users
 // @access      Private
 export const getUsers = handlerFactory.getAll(User, "Users");
 
 // @desc        Get specific User by id
-// @route       GWT /api/v1/users/:id
+// @route       GET /api/v1/users/:id
 // @access      Private
 export const getUserById = handlerFactory.getOneById(User);
 
@@ -98,7 +98,7 @@ export const changeUserPassword = asyncHandler(async (req, res, next) => {
 export const deleteUser = handlerFactory.deleteOne(User);
 
 // @desc        Get Logged user data
-// @route       GWT /api/v1/users/getMe
+// @route       GET /api/v1/users/getMe
 // @access      Private/Protect
 
 export const getLoggedUserData = asyncHandler(async (req, res, next) => {

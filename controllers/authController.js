@@ -9,7 +9,7 @@ import { createToken } from "../utils/createToken.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
 // @desc        signup
-// @route       GWT /api/v1/auth/signup
+// @route       GET /api/v1/auth/signup
 // @access      Public
 export const signup = asyncHandler(async (req, res, next) => {
   // 1- create user
@@ -25,7 +25,7 @@ export const signup = asyncHandler(async (req, res, next) => {
 });
 
 // @desc        login
-// @route       GWT /api/v1/auth/signup
+// @route       GET /api/v1/auth/signup
 // @access      Public
 export const login = asyncHandler(async (req, res, next) => {
   // 1- check if password and email in the body(validation)
@@ -114,7 +114,7 @@ export const allowedTo = (...roles) =>
   });
 
 // @desc        Forgot Password
-// @route       GWT /api/v1/auth/forgotPassword
+// @route       GET /api/v1/auth/forgotPassword
 // @access      Public
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user by email
