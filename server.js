@@ -2,16 +2,16 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import express from "express";
-
 import morgan from "morgan";
+
 import { config } from "dotenv";
+config({ path: ".env.config" });
+
 import dbConnection from "./config/database.js";
 
 import ApiError from "./utils/apiError.js";
 import mountRoutes from "./routes/index.js";
 import { globalError } from "./middlewares/errorMiddleware.js";
-
-config({ path: ".env.config" });
 
 //connect with db
 dbConnection();
@@ -30,7 +30,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(`Mode: ${process.env.NODE_ENV}`);
 }
-
+// console.log("log", process.env.STRIPE_SECRET);
 mountRoutes(app);
 
 app.all("*", (req, res, next) => {

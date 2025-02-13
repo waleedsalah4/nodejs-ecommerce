@@ -5,6 +5,8 @@ import { ProductModel } from "../models/productModel.js";
 import Cart from "../models/cartModel.js";
 import Order from "../models/orderModel.js";
 
+import { stripe } from "../utils/stripe.js";
+
 // @desc        create cash order
 // @route       POST /api/v1/orders/cartId
 // @access      Protected/USer
@@ -110,4 +112,53 @@ export const updateOrderToDelivered = asyncHandler(async (req, res, next) => {
   const updatedOrder = await order.save();
 
   res.status(200).json({ status: "success", data: updatedOrder });
+});
+
+// @desc    Get checkout session from stripe and send it as response
+// @route   PUT /api/v1/orders/checkout-session/cartId
+// @access  Protected/User
+export const getCheckoutSession = asyncHandler(async (req, res, next) => {
+  //app setting
+  const taxPrice = 0;
+  const shippingPrice = 0;
+
+  const cart = await Cart.findById(req.params.cartId);
+  if (!cart) {
+    return next(
+      new ApiError(`There is no cart for this user id : ${req.user._id}`, 404)
+    );
+  }
+
+  // 2) Get order price depend on cart price "check if coupon apply"
+  const cartPrice = cart.priceAfterDiscount
+    ? cart.priceAfterDiscount
+    : cart.totalCartPrice;
+  const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
+
+  // console.log(cart.cartItems[0]);
+  //3) create stripe checkout session
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: "egp",
+          product_data: {
+            // name: `products colors => ${cart.cartItems.map((i) => i.color).join(" - ")}`,
+            name: "Cart Products",
+          },
+          unit_amount: totalOrderPrice * 100,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${req.protocol}://${req.get("host")}/orders`,
+    cancel_url: `${req.protocol}://${req.get("host")}/cart`,
+    customer_email: req.user.email,
+    client_reference_id: req.params.cartId,
+    metadata: req.body.shippingAddress,
+  });
+
+  //4) send session to response
+  res.status(200).json({ status: "success", session });
 });
