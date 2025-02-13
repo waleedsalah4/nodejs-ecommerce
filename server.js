@@ -3,6 +3,8 @@ import { fileURLToPath } from "url";
 
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
+import compression from "compression";
 
 import { config } from "dotenv";
 config({ path: ".env.config" });
@@ -18,6 +20,8 @@ dbConnection();
 
 // express app
 const app = express();
+app.use(cors());
+app.options("*", cors());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -30,7 +34,10 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(`Mode: ${process.env.NODE_ENV}`);
 }
-// console.log("log", process.env.STRIPE_SECRET);
+
+//compress all responses
+app.use(compression());
+
 mountRoutes(app);
 
 app.all("*", (req, res, next) => {
