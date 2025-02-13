@@ -14,6 +14,7 @@ import dbConnection from "./config/database.js";
 import ApiError from "./utils/apiError.js";
 import mountRoutes from "./routes/index.js";
 import { globalError } from "./middlewares/errorMiddleware.js";
+import { webhookCheckout } from "./controllers/orderController.js";
 
 //connect with db
 dbConnection();
@@ -29,6 +30,13 @@ const __dirname = path.dirname(__filename);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
 // app.use("/images", express.static(path.join(__dirname, "images")));
+
+// Checkout webhook
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  webhookCheckout
+);
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
