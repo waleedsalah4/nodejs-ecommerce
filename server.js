@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, "uploads")));
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
-  console.log(`Mode: ${process.env.NODE_ENV}`);
+  // console.log(`Mode: ${process.env.NODE_ENV}`);
 }
 
 //compress all responses
@@ -54,7 +54,7 @@ app.use(globalError); //handle error inside express
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () => {
-  console.log("RUNS");
+  // console.log("RUNS");
 });
 
 //handle rejection (error) outside express

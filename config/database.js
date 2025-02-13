@@ -5,7 +5,7 @@ export default function dbConnection() {
   mongoose
     .connect(process.env.DATABASE_URI)
     .then(() => {
-      console.log("CONNECTED");
+      // console.log("CONNECTED");
     })
     .catch((error) => {
       console.log(error);
